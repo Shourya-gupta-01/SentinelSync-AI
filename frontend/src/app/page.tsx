@@ -12,6 +12,7 @@ import {
   CheckCircle2,
   ServerCrash
 } from "lucide-react";
+import ClickSpark from "@/components/ClickSpark";
 
 export default function TacticalDashboard() {
   const [isMeshActive, setIsMeshActive] = useState(false);
@@ -34,7 +35,14 @@ export default function TacticalDashboard() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#050510] text-[#E0E0FF] font-sans selection:bg-purple-500/30">
+    <ClickSpark
+      sparkColor='#a855f7'
+      sparkSize={12}
+      sparkRadius={20}
+      sparkCount={10}
+      duration={500}
+    >
+      <div className="min-h-screen bg-[#050510] text-[#E0E0FF] font-sans selection:bg-purple-500/30">
       
       {/* Background Ambience */}
       <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
@@ -212,5 +220,6 @@ export default function TacticalDashboard() {
 
       </main>
     </div>
+    </ClickSpark>
   );
 }
