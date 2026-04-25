@@ -1,26 +1,26 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { 
-  ShieldAlert, 
-  Wifi, 
-  WifiOff, 
-  Activity, 
-  MapPin, 
-  AlertTriangle,
-  Users,
-  CheckCircle2,
-  ServerCrash
-} from "lucide-react";
 import ClickSpark from "@/components/ClickSpark";
+import TopNavbar from "@/components/TopNavbar";
+import ActiveAlerts from "@/components/ActiveAlerts";
+import SystemStatus from "@/components/SystemStatus";
+import ActivityTimeline from "@/components/ActivityTimeline";
+import QuickReportForm from "@/components/QuickReportForm";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function TacticalDashboard() {
   const [isMeshActive, setIsMeshActive] = useState(false);
   const [offlineNodes, setOfflineNodes] = useState(0);
   const [hazardLevel, setHazardLevel] = useState("Nominal");
+  const [isBooting, setIsBooting] = useState(true);
   
   // Simulation Effect
   useEffect(() => {
+    const bootTimer = setTimeout(() => {
+      setIsBooting(false);
+    }, 2000);
+
     const timer = setTimeout(() => {
       setHazardLevel("Level 5 - Active Fire Detected");
       setIsMeshActive(true);
@@ -30,8 +30,11 @@ export default function TacticalDashboard() {
       }, 500);
       
       return () => clearInterval(interval);
-    }, 3000);
-    return () => clearTimeout(timer);
+    }, 5000);
+    return () => {
+      clearTimeout(bootTimer);
+      clearTimeout(timer);
+    };
   }, []);
 
   return (
@@ -42,184 +45,118 @@ export default function TacticalDashboard() {
       sparkCount={10}
       duration={500}
     >
-      <div className="min-h-screen bg-[#050510] text-[#E0E0FF] font-sans selection:bg-purple-500/30">
+      <div className="min-h-screen bg-slate-950 text-slate-200 flex flex-col relative overflow-hidden">
       
-      {/* Background Ambience */}
-      <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-purple-900/10 blur-[120px] rounded-full mix-blend-screen" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-900/10 blur-[120px] rounded-full mix-blend-screen" />
-        {hazardLevel.includes("5") && (
-           <div className="absolute top-[20%] left-[30%] w-[40%] h-[40%] bg-red-900/20 blur-[150px] rounded-full mix-blend-screen animate-pulse" />
-        )}
-      </div>
-
-      {/* Top Navbar */}
-      <nav className="relative z-10 flex items-center justify-between px-8 py-5 border-b border-white/5 bg-black/20 backdrop-blur-md">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg shadow-[0_0_20px_rgba(79,70,229,0.3)]">
-            <ShieldAlert size={24} className="text-white" />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold tracking-tight text-white drop-shadow-sm">SentinelSync <span className="opacity-70 font-normal">AI</span></h1>
-            <p className="text-xs text-indigo-300/70 font-mono tracking-wider uppercase">Tactical Operations Bridge</p>
-          </div>
+        {/* Background Ambience */}
+        <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-indigo-600/15 blur-[150px] rounded-full mix-blend-screen" />
+          <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] bg-purple-600/15 blur-[150px] rounded-full mix-blend-screen" />
+          {hazardLevel.includes("5") && (
+             <div className="absolute top-[20%] left-[30%] w-[40%] h-[40%] bg-red-600/15 blur-[180px] rounded-full mix-blend-screen animate-pulse-slow" />
+          )}
         </div>
 
-        <div className="flex items-center gap-6">
-          <div className={`flex items-center gap-2 px-4 py-1.5 rounded-full border ${isMeshActive ? 'bg-red-500/10 border-red-500/30 text-red-400' : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'}`}>
-            {isMeshActive ? <WifiOff size={16} className="animate-pulse" /> : <Wifi size={16} />}
-            <span className="text-sm font-semibold tracking-wide uppercase">
-              {isMeshActive ? 'Cloud Disconnected: Mesh Active' : 'Cloud Link: Stable'}
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_10px_rgba(52,211,153,0.8)]" />
-            <span className="text-sm font-medium opacity-70 cursor-default hover:opacity-100 transition-opacity">GDC Edge Node HQ</span>
-          </div>
-        </div>
-      </nav>
-
-      {/* Main Content Dashboard */}
-      <main className="relative z-10 p-8">
+        {/* Top Navbar Component */}
+        <TopNavbar isMeshActive={isMeshActive} />
         
-        {/* Global Situation Summary */}
-        <header className="mb-10 flex justify-between items-end">
-          <div>
-            <h2 className="text-3xl font-extrabold tracking-tight text-white mb-2">Global Situation Map</h2>
-            <p className="text-indigo-200/60 max-w-xl text-sm leading-relaxed">
-              Monitoring 5,000+ active tracking points across hospitality zones constraint-free using WebGL optimizations and offline CRDT peering.
-            </p>
-          </div>
+        {/* Main Content Dashboard */}
+        <main className="relative z-10 px-6 pt-32 pb-12 md:px-12 flex-1 flex flex-col max-w-7xl mx-auto w-full">
           
-          <div className="flex gap-4">
-            <div className="flex flex-col items-end">
-              <span className="text-xs text-indigo-300/50 uppercase tracking-widest font-semibold mb-1">State</span>
-              <div className={`px-4 py-2 rounded-lg font-bold border shadow-lg ${hazardLevel.includes("5") ? 'bg-red-500/10 border-red-500/50 text-red-500 shadow-red-500/20' : 'bg-white/5 border-white/10 text-white shadow-black/50'}`}>
-                {hazardLevel}
+          {/* Global Situation Summary */}
+          <motion.header 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="mb-12 flex flex-col md:flex-row justify-between items-start md:items-end gap-6"
+          >
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-bold uppercase tracking-wider mb-4">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+                </span>
+                Active Defense Network
               </div>
-            </div>
-            <div className="flex flex-col items-end">
-              <span className="text-xs text-indigo-300/50 uppercase tracking-widest font-semibold mb-1">Active P2P Nodes</span>
-              <div className="px-4 py-2 rounded-lg font-bold bg-white/5 border border-white/10 text-indigo-300 shadow-lg font-mono">
-                {offlineNodes} / 1000
-              </div>
-            </div>
-          </div>
-        </header>
-
-        {/* 3 Col Grid */}
-        <div className="grid grid-cols-12 gap-6 h-[600px]">
-          
-          {/* Central Map Visualization Window */}
-          <div className="col-span-8 relative rounded-2xl border border-white/10 bg-black/40 shadow-2xl overflow-hidden group">
-            {/* Mock WebGL Map Component */}
-            <div className="absolute inset-0 bg-[#0a0a16]" />
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-900/10 via-transparent to-transparent" />
-            
-            {/* Grid Lines Pattern */}
-            <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'linear-gradient(#4f46e5 1px, transparent 1px), linear-gradient(90deg, #4f46e5 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
-            
-            {/* Mock Clusters & Entities */}
-            {hazardLevel.includes("5") && (
-              <>
-                <div className="absolute top-[40%] left-[50%] w-32 h-32 -mt-16 -ml-16 bg-red-500/20 mix-blend-screen rounded-full blur-[20px] animate-pulse" />
-                <div className="absolute top-[40%] left-[50%] -mt-3 -ml-3 z-20">
-                    <div className="w-6 h-6 bg-red-600 rounded-full border-2 border-white shadow-[0_0_20px_rgba(220,38,38,1)] flex items-center justify-center">
-                        <AlertTriangle size={12} className="text-white" />
-                    </div>
-                </div>
-                
-                {/* Simulated Evacuation Routes */}
-                <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-50">
-                    <path d="M 50% 40% Q 60% 60% 80% 80%" stroke="#10b981" strokeWidth="3" strokeDasharray="6 6" fill="transparent" className="animate-[dash_1s_linear_infinite]" />
-                    <path d="M 50% 40% Q 30% 60% 10% 70%" stroke="#10b981" strokeWidth="3" strokeDasharray="6 6" fill="transparent" className="animate-[dash_1s_linear_infinite]" />
-                </svg>
-              </>
-            )}
-
-            <div className="absolute bottom-6 left-6 right-6 flex justify-between items-end z-20">
-               <div className="px-4 py-3 bg-black/60 backdrop-blur-xl border border-white/10 rounded-xl">
-                 <h3 className="text-sm font-semibold text-white flex items-center gap-2 mb-1">
-                    <Activity size={16} className="text-indigo-400" /> WebGL Render Pipeline
-                 </h3>
-                 <p className="text-xs text-indigo-200/50">Processing 5,000+ points at 60fps via Web Workers.</p>
-               </div>
-
-               <button className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm rounded-xl transition-colors shadow-lg shadow-indigo-500/20 border border-indigo-400/30">
-                  Access 3D Tiles View
-               </button>
-            </div>
-            
-            <style jsx>{`
-               @keyframes dash {
-                 to { stroke-dashoffset: -12; }
-               }
-            `}</style>
-          </div>
-
-          {/* Right Sidebar - Autonomous Routing & Logs */}
-          <div className="col-span-4 flex flex-col gap-6">
-            
-            {/* Action Card */}
-            <div className="bg-black/40 backdrop-blur-md rounded-2xl border border-white/10 p-6 flex flex-col relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-4 opacity-10">
-                   <Users size={80} />
-                </div>
-                <h3 className="text-lg font-bold text-white mb-1 relative z-10">Vertex AI Agent dispatched</h3>
-                <p className="text-sm text-indigo-200/60 mb-6 relative z-10">
-                   AI Triage completed. Autonomous routing initialized based on staff certifications.
+              <h1 className="text-5xl font-sans font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 mb-4 drop-shadow-sm">
+                SentinelSync Tactical Bridge
+              </h1>
+              <div className="space-y-2">
+                <p className="text-slate-200 max-w-3xl text-base leading-relaxed font-medium">
+                  An offline-first, Edge AI crisis management system designed to protect lives when traditional networks fail. 
                 </p>
+                <p className="text-slate-400 max-w-3xl text-sm leading-relaxed">
+                  SentinelSync provides real-time vision detection for thermal anomalies and physical threats, instantly synchronizing mission-critical telemetry and evacuation guidance across devices via resilient P2P mesh networking.
+                </p>
+              </div>
+
+              {/* Action Buttons */}
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                className="flex flex-wrap gap-4 mt-8"
+              >
+                <motion.button 
+                  whileHover={{ scale: 1.05, boxShadow: "0 0 25px rgba(99,102,241,0.5)" }}
+                  whileTap={{ scale: 0.95 }}
+                  className="px-8 py-3.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-full font-bold text-sm tracking-widest uppercase shadow-[0_4px_20px_rgba(79,70,229,0.4)] relative overflow-hidden group"
+                >
+                  <span className="relative z-10">Deploy Countermeasures</span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-indigo-400 to-purple-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                </motion.button>
                 
-                <div className="space-y-4 relative z-10">
-                   <div className="flex items-start gap-4 p-4 rounded-xl bg-white/5 border border-white/5">
-                      <div className="p-2 bg-emerald-500/20 rounded-lg shrink-0 mt-0.5">
-                         <CheckCircle2 size={16} className="text-emerald-400" />
-                      </div>
-                      <div>
-                         <p className="text-sm font-semibold text-white">John D. (CPR Certified)</p>
-                         <p className="text-xs text-indigo-200/60 mt-1 flex items-center gap-1">
-                            <MapPin size={12} /> Routed to Level 2 Medical Event
-                         </p>
-                      </div>
-                   </div>
-                </div>
+                <motion.button 
+                  whileHover={{ scale: 1.05, bg: "rgba(255,255,255,0.1)" }}
+                  whileTap={{ scale: 0.95 }}
+                  className="px-8 py-3.5 glass-panel border-white/10 text-white rounded-full font-bold text-sm tracking-widest uppercase hover:border-white/20 transition-all"
+                >
+                  View Live Feed
+                </motion.button>
+              </motion.div>
+            </div>
+            
+            <div className="flex gap-5">
+              <div className="flex flex-col items-end">
+                <span className="text-[10px] text-slate-400 uppercase tracking-[0.2em] font-bold mb-1.5 font-sans">State</span>
+                <motion.div 
+                  layout
+                  className={`px-6 py-3 rounded-2xl font-sans font-bold transition-colors duration-500 glass-card ${
+                    hazardLevel.includes("5") 
+                      ? 'bg-red-500/10 border-red-500/50 text-red-400 shadow-[0_0_20px_rgba(239,68,68,0.2)]' 
+                      : 'border-white/10 text-white'
+                  }`}
+                >
+                  <motion.span layout="position">{hazardLevel}</motion.span>
+                </motion.div>
+              </div>
+            </div>
+          </motion.header>
+
+          {/* Top 2 Col Grid */}
+          <div className="grid md:grid-cols-2 gap-6 min-h-[400px]">
+            {/* Left Sidebar - Active Alerts */}
+            <div className="h-full">
+              <ActiveAlerts hazardLevel={hazardLevel} isLoading={isBooting} />
             </div>
 
-            {/* Mesh Telemetry Log */}
-            <div className="bg-black/40 backdrop-blur-md rounded-2xl border border-white/10 p-6 flex-1 flex flex-col relative overflow-hidden">
-               <h3 className="text-sm font-bold text-white tracking-widest uppercase mb-4 opacity-80 flex items-center gap-2">
-                 <ServerCrash size={16} className="text-purple-400" /> System Event Log
-               </h3>
-               
-               <div className="flex-1 overflow-auto space-y-3 font-mono text-xs text-indigo-300/70">
-                 {isMeshActive ? (
-                   <>
-                     <div className="text-red-400 bg-red-400/10 p-2 rounded border border-red-400/20">
-                       [CRITICAL] Cloud connection severed. Commencing Chaos Test scenario.
-                     </div>
-                     <div className="text-purple-400 bg-purple-400/10 p-2 rounded border border-purple-400/20">
-                       [MESH] Nearby Connections initialized. 400 nodes switching to Wi-Fi Direct.
-                     </div>
-                     <div className="p-2 rounded border border-white/5">
-                       [TELEMETRY] Injecting 50 hazards to Redpanda Queue...
-                     </div>
-                     <div className="p-2 rounded border border-white/5">
-                       [CRDT] Gossiping evacuation route via Last-Writer-Wins resolution. T=420.
-                     </div>
-                   </>
-                 ) : (
-                   <div className="p-2 rounded border border-white/5">
-                     [SYSTEM] Monitoring active... Normal operations.
-                   </div>
-                 )}
-               </div>
+            {/* Right Sidebar - System Status */}
+            <div className="h-full">
+              <SystemStatus isMeshActive={isMeshActive} offlineNodes={offlineNodes} isLoading={isBooting} />
             </div>
-
           </div>
-        </div>
 
-      </main>
-    </div>
+          {/* Bottom Grid */}
+          <div className="grid lg:grid-cols-3 gap-6 mt-6">
+            <div className="lg:col-span-2">
+              <ActivityTimeline hazardLevel={hazardLevel} isLoading={isBooting} />
+            </div>
+            <div className="lg:col-span-1">
+              <QuickReportForm />
+            </div>
+          </div>
+          
+        </main>
+      </div>
     </ClickSpark>
   );
 }
