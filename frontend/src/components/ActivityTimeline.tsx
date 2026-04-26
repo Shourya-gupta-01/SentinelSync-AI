@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { Activity } from "lucide-react";
 import { motion } from "framer-motion";
@@ -11,8 +11,15 @@ interface ActivityTimelineProps {
 }
 
 export default function ActivityTimeline({ hazardLevel, isLoading = false }: ActivityTimelineProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Generate simulated data for the chart to make it look alive
   const data = useMemo(() => {
+    if (!mounted) return [];
     const isHighAlert = hazardLevel.includes("5");
     const points = [];
     const now = new Date();
@@ -34,7 +41,7 @@ export default function ActivityTimeline({ hazardLevel, isLoading = false }: Act
       });
     }
     return points;
-  }, [hazardLevel]);
+  }, [hazardLevel, mounted]);
 
   return (
     <motion.div 
@@ -58,13 +65,13 @@ export default function ActivityTimeline({ hazardLevel, isLoading = false }: Act
       </div>
 
       <div className="h-[200px] w-full">
-        {isLoading ? (
+        {isLoading || !mounted ? (
           <div className="h-full w-full bg-white/5 rounded-xl animate-pulse flex items-end justify-between px-4 pb-4">
              {Array.from({ length: 12 }).map((_, i) => (
                <div 
                  key={i} 
                  className="w-[6%] bg-white/10 rounded-t-sm" 
-                 style={{ height: `${Math.random() * 60 + 20}%` }}
+                 style={{ height: `${((i * 13) % 60) + 20}%` }}
                />
              ))}
           </div>

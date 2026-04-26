@@ -35,7 +35,7 @@ export default function RootLayout({
       lang="en"
       className={`${poppins.variable} ${inter.variable} ${firaCode.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-slate-950 text-slate-200 overflow-hidden font-inter">
+      <body className="min-h-full flex flex-col bg-slate-950 text-slate-200 font-inter">
         {children}
         <MobileEmergencyOverlay />
         <GlobalToast />

@@ -45,7 +45,7 @@ export default function TacticalDashboard() {
       sparkCount={10}
       duration={500}
     >
-      <div className="min-h-screen bg-slate-950 text-slate-200 flex flex-col relative overflow-hidden">
+      <div className="min-h-screen bg-slate-950 text-slate-200 flex flex-col relative overflow-x-hidden">
       
         {/* Background Ambience */}
         <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
